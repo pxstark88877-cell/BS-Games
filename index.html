@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Batool Store Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Special+Elite&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --wall:#1c120e;
+    --shelf:#2f1d15;
+    --shelf-edge:#43291b;
+    --shelf-shadow:rgba(0,0,0,.55);
+    --tag:#f2e8cf;
+    --tag-edge:#d9c8a0;
+    --ink:#241610;
+    --mustard:#dd9a2b;
+    --mustard-dark:#b87a1a;
+    --teal:#2f8f7f;
+    --stamp-red:#b5453b;
+    --muted:#8a7862;
+    --paper-crease:rgba(0,0,0,.06);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse at 50% -10%, #3a241a 0%, var(--wall) 60%),
+      var(--wall);
+    color:var(--tag);
+    font-family:'Inter', 'Tahoma', sans-serif;
+    padding-bottom:80px;
+  }
+
+  /* ===== HEADER / MARQUEE ===== */
+  header{
+    position:relative;
+    padding:48px 20px 34px;
+    text-align:center;
+    background:
+      linear-gradient(180deg, #241511 0%, var(--wall) 100%);
+    border-bottom:6px solid var(--shelf-edge);
+    box-shadow:0 10px 30px var(--shelf-shadow);
+    overflow:hidden;
+  }
+  header::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image:
+      repeating-linear-gradient(90deg, rgba(255,255,255,.02) 0 2px, transparent 2px 40px);
+    pointer-events:none;
+  }
+  .marquee{
+    font-family:'Bebas Neue', sans-serif;
+    font-size:clamp(48px, 11vw, 96px);
+    letter-spacing:6px;
+    color:var(--mustard);
+    text-shadow:
+      0 0 12px rgba(221,154,43,.55),
+      0 3px 0 #7a4f14,
+      0 6px 14px rgba(0,0,0,.6);
+    margin:0;
+    line-height:1;
+  }
+  .marquee span{color:var(--tag);}
+  .subtitle{
+    font-family:'Special Elite', monospace;
+    color:var(--muted);
+    letter-spacing:3px;
+    font-size:13px;
+    margin-top:10px;
+    text-transform:uppercase;
+  }
+  .count-badge{
+    display:inline-block;
+    margin-top:16px;
+    padding:6px 18px;
+    border:1.5px dashed var(--mustard-dark);
+    border-radius:3px;
+    font-family:'Special Elite', monospace;
+    font-size:12px;
+    color:var(--mustard);
+    letter-spacing:1px;
+  }
+
+  /* ===== CONTROLS ===== */
+  .controls{
+    position:sticky; top:0; z-index:30;
+    background:linear-gradient(180deg, var(--shelf) 0%, #26170f 100%);
+    border-bottom:3px solid var(--shelf-edge);
+    padding:14px 16px;
+    display:flex; flex-direction:column; gap:12px;
+    box-shadow:0 8px 20px rgba(0,0,0,.4);
+  }
+  .search-row{
+    display:flex; gap:10px; max-width:640px; margin:0 auto; width:100%;
+  }
+  .search-row input{
+    flex:1;
+    background:var(--tag);
+    border:none;
+    border-radius:4px;
+    padding:12px 16px;
+    font-family:'Inter', sans-serif;
+    font-size:15px;
+    color:var(--ink);
+    box-shadow:inset 0 2px 5px rgba(0,0,0,.25);
+  }
+  .search-row input::placeholder{color:#8a7c5f;}
+  .search-row input:focus{outline:3px solid var(--mustard); outline-offset:1px;}
+
+  .genre-row{
+    display:flex; gap:8px; flex-wrap:wrap; justify-content:center;
+    max-width:900px; margin:0 auto; width:100%;
+  }
+  .chip{
+    font-family:'Special Elite', monospace;
+    font-size:12px;
+    padding:7px 14px;
+    border-radius:20px;
+    border:1.5px solid var(--tag-edge);
+    background:transparent;
+    color:var(--tag);
+    cursor:pointer;
+    letter-spacing:.5px;
+    transition:transform .15s ease, background .15s ease, color .15s ease;
+  }
+  .chip:hover{transform:translateY(-2px);}
+  .chip:focus-visible{outline:2px solid var(--mustard); outline-offset:2px;}
+  .chip.active{
+    background:var(--mustard);
+    color:var(--ink);
+    border-color:var(--mustard);
+  }
+
+  /* ===== A-Z NAV ===== */
+  .az-nav{
+    position:sticky; top:96px; z-index:20;
+    display:flex; overflow-x:auto; gap:2px;
+    padding:8px 12px;
+    background:var(--wall);
+    border-bottom:1px solid var(--shelf-edge);
+    scrollbar-width:none;
+  }
+  .az-nav::-webkit-scrollbar{display:none;}
+  .az-nav a{
+    flex:0 0 auto;
+    font-family:'Bebas Neue', sans-serif;
+    font-size:16px;
+    color:var(--muted);
+    text-decoration:none;
+    padding:4px 9px;
+    border-radius:3px;
+    letter-spacing:1px;
+  }
+  .az-nav a.has-games{color:var(--tag);}
+  .az-nav a.has-games:hover{background:var(--shelf-edge); color:var(--mustard);}
+
+  /* ===== SECTIONS ===== */
+  .catalog{max-width:1200px; margin:0 auto; padding:0 16px;}
+  .letter-section{margin-top:34px;}
+  .letter-tab{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    font-family:'Bebas Neue', sans-serif;
+    font-size:34px;
+    color:var(--wall);
+    background:var(--mustard);
+    padding:4px 22px 6px 16px;
+    border-radius:4px 12px 12px 4px;
+    box-shadow:4px 4px 0 var(--mustard-dark), 4px 4px 14px rgba(0,0,0,.4);
+    margin-bottom:16px;
+    letter-spacing:2px;
+  }
+  .letter-tab small{
+    font-family:'Special Elite', monospace;
+    font-size:11px;
+    color:var(--wall);
+    opacity:.75;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));
+    gap:22px 16px;
+  }
+
+  /* ===== CARD (price tag) ===== */
+  .card{
+    position:relative;
+    background:var(--tag);
+    border-radius:6px;
+    padding:10px 10px 12px;
+    box-shadow:0 8px 0 rgba(0,0,0,.18), 0 14px 24px rgba(0,0,0,.45);
+    cursor:default;
+    transition:transform .22s cubic-bezier(.2,.8,.3,1.2), box-shadow .22s ease;
+    transform-origin:top center;
+  }
+  .card:hover, .card:focus-within{
+    transform:translateY(-6px) rotate(-1.2deg) scale(1.03);
+    box-shadow:0 14px 0 rgba(0,0,0,.16), 0 26px 34px rgba(0,0,0,.55);
+    z-index:5;
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    top:-7px; left:50%; transform:translateX(-50%);
+    width:14px; height:14px;
+    background:var(--wall);
+    border-radius:50%;
+    box-shadow:0 0 0 3px var(--tag-edge);
+  }
+  .poster-wrap{
+    width:100%;
+    aspect-ratio:3/4;
+    border-radius:4px;
+    overflow:hidden;
+    background:#00000022;
+    box-shadow:inset 0 0 0 1px var(--paper-crease);
+  }
+  .poster-wrap img{
+    width:100%; height:100%; object-fit:cover; display:block;
+  }
+  .card-title{
+    font-family:'Special Elite', monospace;
+    font-size:12.5px;
+    line-height:1.35;
+    color:var(--ink);
+    margin-top:9px;
+    text-align:center;
+    min-height:34px;
+  }
+  .genre-stamp{
+    position:absolute;
+    top:8px; left:8px;
+    font-family:'Special Elite', monospace;
+    font-size:9px;
+    letter-spacing:.5px;
+    padding:2px 7px;
+    border:1.5px solid currentColor;
+    border-radius:3px;
+    transform:rotate(-8deg);
+    text-transform:uppercase;
+    background:rgba(242,232,207,.85);
+    backdrop-filter:blur(1px);
+  }
+  .genre-Shooter{color:var(--stamp-red);}
+  .genre-RPG{color:#6a4fae;}
+  .genre-Racing{color:var(--teal);}
+  .genre-Sports{color:#2f6f9f;}
+  .genre-Fighting{color:#a8442e;}
+  .genre-Horror{color:#3c2b1f;}
+  .genre-Strategy{color:#3f7a3f;}
+  .genre-Multiplayer{color:var(--mustard-dark);}
+  .genre-Adventure{color:#8a5a1f;}
+
+  .empty-state{
+    text-align:center; padding:60px 20px; color:var(--muted);
+    font-family:'Special Elite', monospace;
+    display:none;
+  }
+
+  footer{
+    text-align:center;
+    margin-top:60px;
+    padding:24px;
+    font-family:'Special Elite', monospace;
+    font-size:11px;
+    color:var(--muted);
+    letter-spacing:1px;
+  }
+
+  @media (max-width:480px){
+    .marquee{letter-spacing:3px;}
+    .grid{grid-template-columns:repeat(auto-fill, minmax(120px,1fr)); gap:16px 10px;}
+    .az-nav{top:110px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .card, .chip{transition:none;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1 class="marquee">BATOOL <span>STORE</span></h1>
+  <div class="subtitle">— Games Catalog —</div>
+  <div class="count-badge" id="countBadge">154 عنوان · مرتبين أبجدياً</div>
+</header>
+
+<div class="controls">
+  <div class="search-row">
+    <input type="text" id="searchInput" placeholder="ابحث عن اسم اللعبة..." autocomplete="off">
+  </div>
+  <div class="genre-row" id="genreRow"></div>
+</div>
+
+<nav class="az-nav" id="azNav" aria-label="فهرس أبجدي"></nav>
+
+<main class="catalog" id="catalog"></main>
+
+<p class="empty-state" id="emptyState">مفيش نتائج مطابقة للبحث 🎮</p>
+
+<footer>BATOOL STORE GAMES — CATALOG UPDATED</footer>
+
+<script>
+const GAMES = [{"title": "Age of Empires II", "file": "Age of Empires II.jpg", "genre": "Strategy"}, {"title": "The Amazing Spider-Man 2", "file": "rhe amazing spider man 2.jpg", "genre": "Adventure"}, {"title": "Among Us", "file": "Among Us.jpg", "genre": "Multiplayer"}, {"title": "Assassin's Creed 1", "file": "assassin creed 1.jpg", "genre": "Adventure"}, {"title": "Assassin's Creed 2", "file": "assassin creed 2.jpg", "genre": "Adventure"}, {"title": "Assassin's Creed 3", "file": "assassin creed 3.jpg", "genre": "Adventure"}, {"title": "Assassin's Creed Brotherhood", "file": "assassin creed brotherhood.jpg", "genre": "Adventure"}, {"title": "Assassin's Creed Freedom Cry Standalone", "file": "Assassins Creed Freedom Cry Standalone.jpg", "genre": "Adventure"}, {"title": "Assassin's Creed IV Black Flag", "file": "assassin creed iv black flag.jpg", "genre": "Adventure"}, {"title": "Assassin's Creed Liberation HD", "file": "assassin creed liberation hd.jpg", "genre": "Adventure"}, {"title": "Assassin's Creed Mirage", "file": "Assassins Creed Mirage.jpg", "genre": "Adventure"}, {"title": "Assassin's Creed Odyssey", "file": "assassin creed odyssey.jpg", "genre": "Adventure"}, {"title": "Assassin's Creed Origins", "file": "assassin creed origins.jpg", "genre": "Adventure"}, {"title": "Assassin's Creed Revelations", "file": "Assassins Creed Revelations.jpg", "genre": "Adventure"}, {"title": "Assassin's Creed Rogue", "file": "assassin creed rogue.jpg", "genre": "Adventure"}, {"title": "Assassin's Creed Syndicate", "file": "assassin creed syndicate.jpg", "genre": "Adventure"}, {"title": "Assassin's Creed Unity", "file": "Assassins Creed Unity.jpg", "genre": "Adventure"}, {"title": "Assassin's Creed Valhalla", "file": "assassin creed valhala.jpg", "genre": "Adventure"}, {"title": "Batman Arkham Knight", "file": "Batman Arkham Knight.jpg", "genre": "Adventure"}, {"title": "Battlefield 1", "file": "battlefield 1.jpg", "genre": "Shooter"}, {"title": "Battlefield 3", "file": "battlefield 3.jpg", "genre": "Shooter"}, {"title": "Battlefield 4", "file": "battlefield 4.jpg", "genre": "Shooter"}, {"title": "Battlefield 6", "file": "battlefield 6.jpg", "genre": "Shooter"}, {"title": "Battlefield V", "file": "battlefield v.jpg", "genre": "Shooter"}, {"title": "Black Myth Wukong", "file": "black myth wukong.jpg", "genre": "RPG"}, {"title": "Burnout Paradise", "file": "Burnout Paradise.jpg", "genre": "Racing"}, {"title": "Call of Duty 4 Modern Warfare", "file": "call of duty 4 modern warfare.jpg", "genre": "Shooter"}, {"title": "Call of Duty Black Ops 1", "file": "Call of Duty Black Ops 1.jpg", "genre": "Shooter"}, {"title": "Call of Duty Black Ops 2", "file": "Call of Duty Black Ops 2.jpg", "genre": "Shooter"}, {"title": "Call of Duty Black Ops 3", "file": "call of duty black ops 3.jpg", "genre": "Shooter"}, {"title": "Call of Duty Black Ops 4", "file": "call of duty black ops 4.jpg", "genre": "Shooter"}, {"title": "Call of Duty Black Ops 6", "file": "call of duty black ops 6.jpg", "genre": "Shooter"}, {"title": "Call of Duty Modern Warfare 2", "file": "call of duty modern warefare 2.jpg", "genre": "Shooter"}, {"title": "Call of Duty Modern Warfare 3", "file": "call of duty modern warfare 3.jpg", "genre": "Shooter"}, {"title": "Call of Duty Modern Warfare Remastered", "file": "call of duty modern warefare remasterd.jpg", "genre": "Shooter"}, {"title": "Call of Duty Vanguard", "file": "call of duty vanguard.jpg", "genre": "Shooter"}, {"title": "Call of Duty World at War", "file": "Call of Duty World at War.jpg", "genre": "Shooter"}, {"title": "Call of Duty WWII", "file": "Call of Duty WWII.jpg", "genre": "Shooter"}, {"title": "Chained Together", "file": "Chained Together.jpg", "genre": "Adventure"}, {"title": "Civilization VI", "file": "Civilization VI.jpg", "genre": "Strategy"}, {"title": "Company of Heroes", "file": "company of heroes.jpg", "genre": "Strategy"}, {"title": "Company of Heroes 3", "file": "Company of Heroes 3.jpg", "genre": "Strategy"}, {"title": "Crash Bandicoot 4", "file": "crash bandicoot 4.jpg", "genre": "Adventure"}, {"title": "Crysis 3", "file": "crysis 3.jpg", "genre": "Shooter"}, {"title": "Cyberpunk 2077", "file": "cyperpunk 2077.jpg", "genre": "RPG"}, {"title": "Dangerous Driving", "file": "dangerous driving.jpg", "genre": "Racing"}, {"title": "Days Gone", "file": "days gone.jpg", "genre": "Adventure"}, {"title": "Detroit Become Human", "file": "detroit become human.jpg", "genre": "Adventure"}, {"title": "Dishonored", "file": "dishonored.jpg", "genre": "Adventure"}, {"title": "Dispatch", "file": "dispatch.jpg", "genre": "Adventure"}, {"title": "Elden Ring", "file": "elden ring.jpg", "genre": "RPG"}, {"title": "Euro Truck Simulator 2", "file": "Euro Truck Simulator 2.jpg", "genre": "Racing"}, {"title": "The Evil Within 2", "file": "the evil within 2.jpg", "genre": "Horror"}, {"title": "Far Cry 3", "file": "far cry 3.jpg", "genre": "Shooter"}, {"title": "Far Cry 6", "file": "far cry 6.jpg", "genre": "Shooter"}, {"title": "Far Cry Primal", "file": "far cry primal.jpg", "genre": "Shooter"}, {"title": "Farming Simulator 25", "file": "Farming Simulator 25.jpg", "genre": "Racing"}, {"title": "FIFA 17", "file": "Fifa 17.jpg", "genre": "Sports"}, {"title": "FIFA 18", "file": "fifa 18.jpg", "genre": "Sports"}, {"title": "FIFA 19", "file": "fifa 19.jpg", "genre": "Sports"}, {"title": "FIFA 23", "file": "fifa 23.jpg", "genre": "Sports"}, {"title": "The Forest", "file": "The Forest.jpg", "genre": "Horror"}, {"title": "Forza Horizon 5", "file": "forza horizon 5.jpg", "genre": "Racing"}, {"title": "Gears of War", "file": "Gears of War.jpg", "genre": "Adventure"}, {"title": "Gears Tactics", "file": "Gears Tactics.jpg", "genre": "Strategy"}, {"title": "Generation Zero", "file": "Generation Zero.jpg", "genre": "Adventure"}, {"title": "Ghost of Tsushima", "file": "ghost of tsushima.jpg", "genre": "Adventure"}, {"title": "God Eater 3", "file": "God Eater 3.jpg", "genre": "RPG"}, {"title": "God of War", "file": "god of war.jpg", "genre": "Adventure"}, {"title": "God of War II", "file": "God of War II.jpg", "genre": "Adventure"}, {"title": "God of War Ragnarok", "file": "god of war ragnarok.jpg", "genre": "Adventure"}, {"title": "Grand Theft Auto IV", "file": "grand theft auto iv.jpg", "genre": "Adventure"}, {"title": "Grand Theft Auto V", "file": "grand theft auto v.jpg", "genre": "Adventure"}, {"title": "Grounded", "file": "grounded.jpg", "genre": "Adventure"}, {"title": "Halo Wars 2", "file": "Halo Wars 2.jpg", "genre": "Shooter"}, {"title": "Hellblade: Senua's Sacrifice", "file": "Hellblade  Senua's Sacrifice.jpg", "genre": "Adventure"}, {"title": "Heroes & Generals WWII", "file": "Heroes & Generals WWII.jpg", "genre": "Multiplayer"}, {"title": "Hitman 3", "file": "Hitman 3.jpg", "genre": "Adventure"}, {"title": "Horizon Zero Dawn", "file": "horizon zero dawn.jpg", "genre": "RPG"}, {"title": "Indiana Jones and the Great Circle", "file": "indiana jones and the great circle.jpg", "genre": "Adventure"}, {"title": "It Takes Two", "file": "it takes two.jpg", "genre": "Adventure"}, {"title": "Kena: Bridge of Spirits", "file": "kena bridge of spirits.jpg", "genre": "RPG"}, {"title": "The Last Airbender", "file": "the last airbender.jpg", "genre": "Adventure"}, {"title": "The Last of Us 1", "file": "the last of us 1.jpg", "genre": "Adventure"}, {"title": "The Last of Us 2", "file": "the last of us 2.jpg", "genre": "Adventure"}, {"title": "League of Legends", "file": "League of Legends.jpg", "genre": "Multiplayer"}, {"title": "Left 4 Dead 2", "file": "Left 4 Dead 2.jpg", "genre": "Shooter"}, {"title": "The Legend of Zelda Breath of the Wild", "file": "The Legend of Zelda Breath of the Wild.jpg", "genre": "Adventure"}, {"title": "Little Nightmares", "file": "Little Nightmares.jpg", "genre": "Horror"}, {"title": "Little Nightmares II", "file": "Little Nightmares II.jpg", "genre": "Horror"}, {"title": "Mafia 3", "file": "mafia 3.jpg", "genre": "Adventure"}, {"title": "Marvel Avengers", "file": "marvel avengers.jpg", "genre": "Adventure"}, {"title": "Marvel's Spider-Man 2", "file": "marvel spider man 2.jpg", "genre": "Adventure"}, {"title": "Marvel's Spider-Man Remastered (2018)", "file": "marvel spider man remasterd 2018.jpg", "genre": "Adventure"}, {"title": "Marvel's Spider-Man: Miles Morales", "file": "marvel spider man miles morales.jpg", "genre": "Adventure"}, {"title": "Metal Gear Rising", "file": "Metal Gear Rising.jpg", "genre": "Adventure"}, {"title": "Metal Gear Solid V", "file": "Metal Gear Solid V.jpg", "genre": "Adventure"}, {"title": "Metro Exodus", "file": "Metro Exodus.jpg", "genre": "Shooter"}, {"title": "Middle-earth: Shadow of Mordor", "file": "Middle earth  Shadow of Mordor.jpg", "genre": "RPG"}, {"title": "Middle-earth: Shadow of War", "file": "Middle earth  Shadow of War.jpg", "genre": "RPG"}, {"title": "Mirror's Edge Catalyst", "file": "Mirror's Edge Catalyst.jpg", "genre": "Adventure"}, {"title": "Mortal Kombat 11", "file": "mortal kombat 11.jpg", "genre": "Fighting"}, {"title": "Mortal Kombat X", "file": "Mortal Kombat X.jpg", "genre": "Fighting"}, {"title": "Mortal Kombat XL", "file": "mortal kombat xl.jpg", "genre": "Fighting"}, {"title": "MotoGP 22", "file": "MotoGP 22.jpg", "genre": "Sports"}, {"title": "Need for Speed Heat", "file": "need for speed heat.jpg", "genre": "Racing"}, {"title": "Need for Speed: The Run", "file": "Need For Speed Run.jpg", "genre": "Racing"}, {"title": "Need for Speed: The Run", "file": "need for speed the run.jpg", "genre": "Racing"}, {"title": "PepsiMan", "file": "PepsiMan.jpg", "genre": "Adventure"}, {"title": "PES 2017 (Patch 22)", "file": "pes 2017 patch 22.jpg", "genre": "Sports"}, {"title": "PES 2019", "file": "pes 2019.jpg", "genre": "Sports"}, {"title": "PES 2021", "file": "pes 2021.jpg", "genre": "Sports"}, {"title": "PES 2021 (Patch 26)", "file": "pes 21 patch 26.jpg", "genre": "Sports"}, {"title": "A Plague Tale: Requiem", "file": "a plague tale requiem.jpg", "genre": "Adventure"}, {"title": "Poppy Playtime Chapter 1", "file": "poppy playtime chapter 1.jpg", "genre": "Horror"}, {"title": "Prince of Persia: The Lost Crown", "file": "Prince of Persia The Lost Crown.jpg", "genre": "Adventure"}, {"title": "Prototype 2", "file": "Prototype 2.jpg", "genre": "Adventure"}, {"title": "PUBG: Battlegrounds", "file": "bubg steam online.jpg", "genre": "Multiplayer"}, {"title": "Rainbow Six Siege", "file": "Rainbow Six Siege.jpg", "genre": "Shooter"}, {"title": "Red Dead Redemption 1", "file": "Red Dead Redemption 1.jpg", "genre": "Adventure"}, {"title": "Red Dead Redemption 2", "file": "red dead redemption 2.jpg", "genre": "Adventure"}, {"title": "Resident Evil 6", "file": "resident evil 6.jpg", "genre": "Horror"}, {"title": "Resident Evil 7", "file": "Resident Evil 7.jpg", "genre": "Horror"}, {"title": "Resident Evil Requiem", "file": "resident evil requiem.jpg", "genre": "Horror"}, {"title": "Rise of the Tomb Raider", "file": "rise of the tomp raider.jpg", "genre": "Adventure"}, {"title": "Ryse Son of Rome", "file": "Ryse Son of Rome.jpg", "genre": "Adventure"}, {"title": "Shadow of the Tomb Raider", "file": "Shadow of the Tomb Raider.jpg", "genre": "Adventure"}, {"title": "Sleeping Dogs", "file": "Sleeping Dogs.jpg", "genre": "Adventure"}, {"title": "Splinter Cell Conviction", "file": "Splinter Cell Conviction.jpg", "genre": "Shooter"}, {"title": "Split Second Velocity", "file": "Split Second Velocity.jpg", "genre": "Racing"}, {"title": "Tales of Kenzera ZAU", "file": "Tales of Kenzera ZAU.jpg", "genre": "Adventure"}, {"title": "Tekken 7", "file": "tekken 7.jpg", "genre": "Fighting"}, {"title": "Tekken 8", "file": "tekken 8.jpg", "genre": "Fighting"}, {"title": "Thief 2014", "file": "Thief 2014.jpg", "genre": "Adventure"}, {"title": "Tomb Raider (2013)", "file": "Tomb Raider (2013).jpg", "genre": "Adventure"}, {"title": "Uncharted Legacy of Thieves Collection", "file": "uncharted legacy of thieves collection.avif", "genre": "Adventure"}, {"title": "Unravel Two", "file": "unravel two.jpg", "genre": "Adventure"}, {"title": "Unreal Tournament", "file": "Unreal Tournament.jpg", "genre": "Adventure"}, {"title": "Vampyr", "file": "Vampyr.jpg", "genre": "Adventure"}, {"title": "The Walking Dead: The Final Season", "file": "the walking dead the final season.jpg", "genre": "Adventure"}, {"title": "Watch Dogs 1", "file": "Watch Dogs 1.jpg", "genre": "Adventure"}, {"title": "Watch Dogs 2", "file": "watch dogs 2.jpg", "genre": "Adventure"}, {"title": "A Way Out", "file": "Away Out.jpg", "genre": "Adventure"}, {"title": "The Witcher 2 Enhanced Edition", "file": "the witcher 2 enhanced edition.jpg", "genre": "RPG"}, {"title": "The Witcher 3 Wild Hunt", "file": "the witcher 3 wild hunt.jpg", "genre": "RPG"}, {"title": "Wolfenstein II: The New Colossus", "file": "Wolfenstein II The New Colossus.jpg", "genre": "Shooter"}, {"title": "World War Z", "file": "World War Z.jpg", "genre": "Shooter"}, {"title": "WWE 2K15", "file": "wwe 2k15.jpg", "genre": "Fighting"}, {"title": "WWE 2K19", "file": "WWE 2K19.jpg", "genre": "Fighting"}, {"title": "WWE 2K20", "file": "wwe 2k20.jpg", "genre": "Fighting"}, {"title": "WWE 2K24", "file": "wwe 2k24.jpg", "genre": "Fighting"}, {"title": "WWE 2K25", "file": "WWE 2k25.jpg", "genre": "Fighting"}, {"title": "X-Men Origins Wolverine", "file": "X-Men Origins Wolverine.jpg", "genre": "Adventure"}, {"title": "Xenon Racer", "file": "Xenon Racer.jpg", "genre": "Racing"}];
+
+const catalogEl = document.getElementById('catalog');
+const azNavEl = document.getElementById('azNav');
+const genreRowEl = document.getElementById('genreRow');
+const searchInput = document.getElementById('searchInput');
+const emptyState = document.getElementById('emptyState');
+const countBadge = document.getElementById('countBadge');
+
+function sortKey(title){
+  return title.replace(/^(the|a|an)\s+/i, '').toLowerCase();
+}
+function letterOf(title){
+  const k = sortKey(title);
+  const c = k.charAt(0).toUpperCase();
+  return /[A-Z]/.test(c) ? c : '#';
+}
+
+GAMES.sort((a,b) => sortKey(a.title).localeCompare(sortKey(b.title)));
+
+const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+const genres = [...new Set(GAMES.map(g => g.genre))].sort();
+
+// Build genre chips
+let activeGenre = 'ALL';
+function renderChips(){
+  genreRowEl.innerHTML = '';
+  const allChip = document.createElement('button');
+  allChip.className = 'chip' + (activeGenre==='ALL' ? ' active':'');
+  allChip.textContent = 'الكل';
+  allChip.onclick = () => { activeGenre='ALL'; renderChips(); render(); };
+  genreRowEl.appendChild(allChip);
+  genres.forEach(g => {
+    const btn = document.createElement('button');
+    btn.className = 'chip' + (activeGenre===g ? ' active':'');
+    btn.textContent = g;
+    btn.onclick = () => { activeGenre = g; renderChips(); render(); };
+    genreRowEl.appendChild(btn);
+  });
+}
+renderChips();
+
+// Build A-Z nav
+function renderAzNav(availableLetters){
+  azNavEl.innerHTML = '';
+  letters.forEach(L => {
+    const a = document.createElement('a');
+    a.textContent = L;
+    a.href = '#letter-' + L;
+    if(availableLetters.has(L)) a.classList.add('has-games');
+    else a.setAttribute('aria-disabled','true');
+    azNavEl.appendChild(a);
+  });
+}
+
+function render(){
+  const q = searchInput.value.trim().toLowerCase();
+  const filtered = GAMES.filter(g => {
+    const matchesSearch = !q || g.title.toLowerCase().includes(q);
+    const matchesGenre = activeGenre==='ALL' || g.genre===activeGenre;
+    return matchesSearch && matchesGenre;
+  });
+
+  countBadge.textContent = filtered.length + ' عنوان' + (q||activeGenre!=='ALL' ? ' مطابق' : ' · مرتبين أبجدياً');
+
+  catalogEl.innerHTML = '';
+  emptyState.style.display = filtered.length ? 'none' : 'block';
+
+  const groups = {};
+  filtered.forEach(g => {
+    const L = letterOf(g.title);
+    (groups[L] = groups[L] || []).push(g);
+  });
+
+  renderAzNav(new Set(Object.keys(groups)));
+
+  const orderedLetters = letters.filter(L => groups[L]);
+  if(groups['#']) orderedLetters.push('#');
+
+  orderedLetters.forEach(L => {
+    const section = document.createElement('section');
+    section.className = 'letter-section';
+    section.id = 'letter-' + L;
+
+    const tab = document.createElement('div');
+    tab.className = 'letter-tab';
+    tab.innerHTML = L + ' <small>' + groups[L].length + '</small>';
+    section.appendChild(tab);
+
+    const grid = document.createElement('div');
+    grid.className = 'grid';
+
+    groups[L].forEach(g => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.tabIndex = 0;
+
+      const stamp = document.createElement('span');
+      stamp.className = 'genre-stamp genre-' + g.genre;
+      stamp.textContent = g.genre;
+
+      const posterWrap = document.createElement('div');
+      posterWrap.className = 'poster-wrap';
+      const img = document.createElement('img');
+      img.src = 'games/' + encodeURIComponent(g.file);
+      img.alt = g.title;
+      img.loading = 'lazy';
+      posterWrap.appendChild(img);
+
+      const titleEl = document.createElement('div');
+      titleEl.className = 'card-title';
+      titleEl.textContent = g.title;
+
+      card.appendChild(stamp);
+      card.appendChild(posterWrap);
+      card.appendChild(titleEl);
+      grid.appendChild(card);
+    });
+
+    section.appendChild(grid);
+    catalogEl.appendChild(section);
+  });
+}
+
+searchInput.addEventListener('input', () => render());
+render();
+</script>
+</body>
+</html>
